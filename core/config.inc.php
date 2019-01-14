@@ -12,4 +12,4 @@ define('DB_PASSWORD', '');
 /**
  * RedBean configuration
  */
-define('REDBEAN_MODEL_PREFIX','\\formulair.alumni\\Model\\');
+define('REDBEAN_MODEL_PREFIX','\\Formulair\\Model\\');
