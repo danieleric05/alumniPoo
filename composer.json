@@ -1,0 +1,10 @@
+{
+  "name":"formulair.alumni",
+  "license":"MIT",
+  "type": "project",
+  "description": "A formulaire pour alumni-CNDA",
+  "autoload": {"psr-0": {"":"src/"}},
+  "require": {
+     "gabordemooij/redbean":"dev-master"
+  }
+}
