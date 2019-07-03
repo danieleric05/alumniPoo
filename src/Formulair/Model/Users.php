@@ -4,7 +4,6 @@ namespace Formulair\Model;
 
 class Users extends \RedBeanPHP\SimpleModel
 {
-    public $iNoUser;
     public $sLogin;
     public $sPassword;
     public $LastName;

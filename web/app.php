@@ -1,8 +1,12 @@
 <?php
 
-use Formulair\Model\User;
-
 require_once __DIR__.'/../core/bootstrap.php';
 
-var_dump(new Users());
+use RedBeanPHP\Facade as R;
+/**
+ * @ $users \Formulair\Model\Users
+ */
+$users = R::dispense('users');
+$users->slogin ='admin';
 
+R::store($users);
