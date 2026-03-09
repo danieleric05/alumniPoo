@@ -1,0 +1,35 @@
+# Fichiers systèmes
+.DS_Store
+Thumbs.db
+
+# IDE et éditeurs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Fichiers de configuration personnels
+.bash_history
+.zsh_history
+.claude.json
+.claude/
+.npm/
+.cache/
+.copilot/
+.vscode-server/
+
+# Dépendances et build
+node_modules/
+vendor/
+dist/
+build/
+
+# Environnement
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*

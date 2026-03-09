@@ -1,0 +1,22 @@
+{
+    "name": "cnda/alumni",
+    "license": "MIT",
+    "type": "project",
+    "description": "Application web de gestion des profils d'alumni pour CNDA",
+    "autoload": {
+        "psr-4": {
+            "Formulair\\": "src/Formulair/"
+        }
+    },
+    "require": {
+        "php": ">=7.4",
+        "gabordemooij/redbean": "^5.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.0"
+    },
+    "scripts": {
+        "test": "phpunit",
+        "dev-server": "php -S localhost:8000 -t web/"
+    }
+}
