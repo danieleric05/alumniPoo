@@ -55,11 +55,66 @@ class AlumniService
         return $exp;
     }
 
+    public function getWorkExperienceById(int $id, int $userId): ?OODBBean
+    {
+        $exp = R::findOne('user_work_experience', 'id = ? AND i_user = ?', [$id, $userId]);
+
+        return $exp ?: null;
+    }
+
+    public function updateWorkExperience(int $id, int $userId, array $data): ?OODBBean
+    {
+        $exp = $this->getWorkExperienceById($id, $userId);
+
+        if ($exp === null) {
+            return null;
+        }
+
+        $exp->sCompany = $data['sCompany'] ?? '';
+        $exp->iDivision = $data['iDivision'] ?: null;
+        $exp->iCity = $data['iCity'] ?: null;
+        $exp->sCity = $data['sCity'] ?? '';
+        $exp->iCountry = $data['iCountry'] ?: null;
+        $exp->dStart = $data['dStart'] ?: null;
+        $exp->iEnd = $data['iEnd'] ?: null;
+        $exp->sDescription = $data['sDescription'] ?? '';
+
+        R::store($exp);
+
+        return $exp;
+    }
+
+    public function deleteWorkExperience(int $id, int $userId): bool
+    {
+        $exp = $this->getWorkExperienceById($id, $userId);
+
+        if ($exp === null) {
+            return false;
+        }
+
+        R::trash($exp);
+
+        return true;
+    }
+
     public function getUserContactInfo(int $userId): array
     {
         $infos = R::find('user_contact_info', 'i_user = ? ORDER BY d_creation DESC', [$userId]);
 
         return array_map([$this, 'contactInfoToArray'], array_values($infos));
+    }
+
+    public function deleteContactInfo(int $id, int $userId): bool
+    {
+        $info = R::findOne('user_contact_info', 'id = ? AND i_user = ?', [$id, $userId]);
+
+        if ($info === null) {
+            return false;
+        }
+
+        R::trash($info);
+
+        return true;
     }
 
     public function addContactInfo(int $userId, array $data): OODBBean

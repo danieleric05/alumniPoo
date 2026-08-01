@@ -45,11 +45,20 @@ class Router
 
     private function pathToRegex(string $path): string
     {
-        return preg_replace_callback(
-            '/{(\w+)}/',
-            fn($matches) => '(?P<' . $matches[1] . '>[^/]+)',
-            preg_quote($path, '#')
-        );
+        // preg_quote() would escape the curly braces of {param} placeholders,
+        // so literal segments and placeholders must be quoted/built separately.
+        $parts = preg_split('/(\{\w+\})/', $path, -1, PREG_SPLIT_DELIM_CAPTURE);
+
+        $regex = '';
+        foreach ($parts as $part) {
+            if (preg_match('/^\{(\w+)\}$/', $part, $matches)) {
+                $regex .= '(?P<' . $matches[1] . '>[^/]+)';
+            } else {
+                $regex .= preg_quote($part, '#');
+            }
+        }
+
+        return $regex;
     }
 
     public function dispatch(string $method, string $path, array $params = []): mixed

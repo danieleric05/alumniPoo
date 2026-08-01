@@ -28,10 +28,14 @@ $router->post('/profile', fn($params) => $alumniController->editProfile());
 $router->get('/work-experience', fn($params) => $alumniController->workExperience());
 $router->get('/work-experience/add', fn($params) => $alumniController->addWorkExperience());
 $router->post('/work-experience/add', fn($params) => $alumniController->addWorkExperience());
+$router->get('/work-experience/edit/{id}', fn($params) => $alumniController->editWorkExperience($params['id']));
+$router->post('/work-experience/edit/{id}', fn($params) => $alumniController->editWorkExperience($params['id']));
+$router->post('/work-experience/delete/{id}', fn($params) => $alumniController->deleteWorkExperience($params['id']));
 
 $router->get('/contact-info', fn($params) => $alumniController->contactInfo());
 $router->get('/contact-info/add', fn($params) => $alumniController->addContactInfo());
 $router->post('/contact-info/add', fn($params) => $alumniController->addContactInfo());
+$router->post('/contact-info/delete/{id}', fn($params) => $alumniController->deleteContactInfo($params['id']));
 
 // Home route
 $router->get('/', function($params) {

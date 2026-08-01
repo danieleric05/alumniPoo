@@ -40,9 +40,11 @@ $content = '
                                     <a href="/work-experience/edit/' . $exp['id'] . '" class="bg-blue-50 hover:bg-blue-100 text-blue-600 font-semibold py-1 px-3 rounded text-xs transition">
                                         Éditer
                                     </a>
-                                    <a href="/work-experience/delete/' . $exp['id'] . '" onclick="return confirm(\'Êtes-vous sûr?\');" class="bg-red-50 hover:bg-red-100 text-red-600 font-semibold py-1 px-3 rounded text-xs transition">
-                                        Supprimer
-                                    </a>
+                                    <form method="POST" action="/work-experience/delete/' . $exp['id'] . '" onsubmit="return confirm(\'Êtes-vous sûr?\');" class="inline">
+                                        <button type="submit" class="bg-red-50 hover:bg-red-100 text-red-600 font-semibold py-1 px-3 rounded text-xs transition">
+                                            Supprimer
+                                        </button>
+                                    </form>
                                 </div>
                             </td>
                         </tr>';
