@@ -55,7 +55,7 @@ class AlumniController extends BaseController
             'iYearEnd' => 'numeric|min:1900|max:2100',
         ]);
 
-        if (!$validator->validate([])) {
+        if (!empty($validator->getErrors())) {
             $user = $this->alumniService->getUserProfile($userId);
             return $this->view('alumni/edit_profile', [
                 'user' => $user,
@@ -118,7 +118,7 @@ class AlumniController extends BaseController
             'sDescription' => 'max:1000',
         ]);
 
-        if (!$validator->validate([])) {
+        if (!empty($validator->getErrors())) {
             $cities = $this->alumniService->getAllCities();
             $divisions = $this->alumniService->getAllJobDivisions();
 
@@ -175,7 +175,7 @@ class AlumniController extends BaseController
             'sValue' => 'required|max:255',
         ]);
 
-        if (!$validator->validate([])) {
+        if (!empty($validator->getErrors())) {
             $types = $this->alumniService->getAllContactTypes();
 
             return $this->view('alumni/add_contact_info', [

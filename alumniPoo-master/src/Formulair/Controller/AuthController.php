@@ -37,7 +37,7 @@ class AuthController extends BaseController
             ]
         );
 
-        if (!$validator->validate([])) {
+        if (!empty($validator->getErrors())) {
             return $this->view('auth/login', [
                 'errors' => $validator->getErrors(),
                 'sLogin' => $sLogin,
@@ -94,7 +94,7 @@ class AuthController extends BaseController
             'LastName' => 'required|alpha|max:100',
         ]);
 
-        if (!$validator->validate([])) {
+        if (!empty($validator->getErrors())) {
             return $this->view('auth/register', [
                 'errors' => $validator->getErrors(),
                 'data' => $data,
