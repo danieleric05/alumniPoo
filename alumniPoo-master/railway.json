@@ -4,6 +4,6 @@
     "builder": "RAILPACK"
   },
   "deploy": {
-    "startCommand": "php -S 0.0.0.0:$PORT -t web web/index.php"
+    "startCommand": "frankenphp php-server --root web --listen 0.0.0.0:$PORT"
   }
 }
