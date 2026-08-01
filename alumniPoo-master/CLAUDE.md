@@ -216,9 +216,28 @@ Apache rewrite rules to route all requests to `index.php`
 
 ## Important Notes
 
-- RedBean automatically creates database tables on first use
+- RedBean automatically creates database tables on first use in fluid mode
+  (`REDBEAN_FREEZE=false`). Production runs frozen (`REDBEAN_FREEZE=true`)
+  for performance, so new tables/columns must be created manually against
+  the database before deploying code that relies on them.
 - No explicit migrations - schema is implicit
 - Model prefix must be `\Formulair\Model\` (matches PSR-4 namespace)
 - Environment variables loaded in `core/bootstrap.php`
 - All controllers extend `BaseController` for common functionality
 - Logs directory created automatically if needed
+
+## Deployment
+
+Hosted on Railway: https://alumnipoo-production.up.railway.app
+
+- **CI/CD**: the `alumniPoo` service is connected to this GitHub repo
+  (root directory: `alumniPoo-master/`), branch `main`. Every push to
+  `main` triggers an automatic build and deploy — no manual `railway up`
+  needed.
+- **Runtime**: FrankenPHP (via Railpack), not the PHP built-in server.
+- **Sessions**: stored in the `app_session` MySQL table
+  (`Formulair\Core\DbSessionHandler`), not the local filesystem — required
+  because FrankenPHP runs multiple threads that don't share file-based
+  sessions reliably.
+- **Database**: separate MySQL service on the same Railway project,
+  referenced via `${{MySQL.*}}` variables on the app service.
