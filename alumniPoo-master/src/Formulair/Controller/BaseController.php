@@ -73,4 +73,15 @@ abstract class BaseController
         $this->logger->error($message);
         $this->json(['error' => $message], $statusCode);
     }
+
+    protected function getClientIp(): string
+    {
+        $forwardedFor = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? null;
+
+        if ($forwardedFor) {
+            return trim(explode(',', $forwardedFor)[0]);
+        }
+
+        return $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+    }
 }

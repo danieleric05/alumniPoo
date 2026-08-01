@@ -8,6 +8,34 @@ use RedBeanPHP\OODBBean;
 
 class AuthService
 {
+    private const MAX_ATTEMPTS = 5;
+    private const WINDOW_MINUTES = 15;
+
+    public function isRateLimited(string $sLogin, string $ip): bool
+    {
+        $since = date('Y-m-d H:i:s', time() - self::WINDOW_MINUTES * 60);
+
+        $count = R::count('login_attempt', 'd_attempt > ? AND (s_login = ? OR s_ip = ?)', [$since, $sLogin, $ip]);
+
+        return $count >= self::MAX_ATTEMPTS;
+    }
+
+    public function recordFailedAttempt(string $sLogin, string $ip): void
+    {
+        $attempt = R::dispense('login_attempt');
+        $attempt->sLogin = $sLogin;
+        $attempt->sIp = $ip;
+        $attempt->dAttempt = date('Y-m-d H:i:s');
+
+        R::store($attempt);
+    }
+
+    public function clearFailedAttempts(string $sLogin, string $ip): void
+    {
+        $attempts = R::find('login_attempt', 's_login = ? OR s_ip = ?', [$sLogin, $ip]);
+        R::trashAll($attempts);
+    }
+
     public function authenticate(string $sLogin, string $sPassword): ?OODBBean
     {
         $user = R::findOne('users', 's_login = ?', [$sLogin]);

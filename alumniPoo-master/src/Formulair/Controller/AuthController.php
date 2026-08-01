@@ -44,14 +44,27 @@ class AuthController extends BaseController
             ]);
         }
 
+        $ip = $this->getClientIp();
+
+        if ($this->authService->isRateLimited($sLogin, $ip)) {
+            $this->logger->warning("Login rate limit exceeded for '$sLogin' from $ip");
+            return $this->view('auth/login', [
+                'error' => 'Trop de tentatives échouées. Merci de réessayer dans quelques minutes.',
+                'sLogin' => $sLogin,
+            ]);
+        }
+
         $user = $this->authService->authenticate($sLogin, $sPassword);
 
         if ($user === null) {
+            $this->authService->recordFailedAttempt($sLogin, $ip);
             return $this->view('auth/login', [
                 'error' => 'Invalid credentials',
                 'sLogin' => $sLogin,
             ]);
         }
+
+        $this->authService->clearFailedAttempts($sLogin, $ip);
 
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
