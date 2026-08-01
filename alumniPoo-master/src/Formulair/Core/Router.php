@@ -78,9 +78,24 @@ class Router
         return $this->notFound();
     }
 
-    private function notFound(): void
+    private function notFound(): string
     {
         http_response_code(404);
-        echo json_encode(['error' => 'Route not found']);
+
+        $title = 'Page introuvable - Alumni CNDA';
+        $content = '
+            <div class="bg-white rounded-xl shadow-md p-12 text-center max-w-lg mx-auto">
+                <p class="text-6xl font-bold text-indigo-600 mb-4">404</p>
+                <h1 class="text-2xl font-bold text-gray-900 mb-2">Page introuvable</h1>
+                <p class="text-gray-600 mb-6">La page que vous recherchez n\'existe pas ou a été déplacée.</p>
+                <a href="/" class="inline-block bg-gradient-to-r from-indigo-600 to-purple-700 hover:from-indigo-700 hover:to-purple-800 text-white font-semibold py-2 px-6 rounded-lg transition">
+                    Retour à l\'accueil
+                </a>
+            </div>
+        ';
+
+        ob_start();
+        include dirname(__DIR__, 2) . '/views/layouts/base.php';
+        return ob_get_clean();
     }
 }

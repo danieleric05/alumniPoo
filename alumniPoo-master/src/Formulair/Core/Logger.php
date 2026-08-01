@@ -12,7 +12,7 @@ class Logger
         if ($logFile === null) {
             $logDir = dirname(__DIR__) . '/logs';
             if (!is_dir($logDir)) {
-                mkdir($logDir, 0755, true);
+                @mkdir($logDir, 0755, true);
             }
             $logFile = $logDir . '/app.log';
         }
@@ -52,10 +52,17 @@ class Logger
         $contextStr = !empty($context) ? ' ' . json_encode($context) : '';
         $logMessage = "[$timestamp] $level: $message$contextStr" . PHP_EOL;
 
-        error_log($logMessage, 3, $this->logFile);
-
-        if (Environment::get('APP_DEBUG', 'false') === 'true') {
-            echo $logMessage;
+        // Write to stderr so logs show up in the hosting platform's log stream
+        // (the log file is not persisted/visible on Railway's ephemeral filesystem).
+        // php://stderr is used instead of the STDERR constant, which isn't
+        // defined under all SAPIs (e.g. the PHP built-in server).
+        $stderr = @fopen('php://stderr', 'a');
+        if ($stderr) {
+            fwrite($stderr, $logMessage);
+            fclose($stderr);
         }
+
+        // Best-effort local file write for local development; must not fail the request.
+        @error_log($logMessage, 3, $this->logFile);
     }
 }
