@@ -27,6 +27,10 @@ class AuthService
             return null;
         }
 
+        if ((int) $user->iStatus !== 1) {
+            return null;
+        }
+
         return $user;
     }
 
