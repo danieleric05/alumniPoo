@@ -53,7 +53,9 @@ class AuthController extends BaseController
             ]);
         }
 
-        session_start();
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
         $_SESSION['user_id'] = $user->id;
         $_SESSION['user_login'] = $user->sLogin;
 
@@ -64,7 +66,9 @@ class AuthController extends BaseController
 
     public function logout(): void
     {
-        session_start();
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
         session_destroy();
         $this->logger->info("User logged out");
         $this->redirect('/login');
@@ -113,7 +117,9 @@ class AuthController extends BaseController
 
         $this->logger->info("New user registered: {$user->sLogin}");
 
-        session_start();
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
         $_SESSION['user_id'] = $user->id;
         $_SESSION['user_login'] = $user->sLogin;
 
