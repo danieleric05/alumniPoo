@@ -53,17 +53,18 @@ class AuthController extends BaseController
             ]);
         }
 
-        $userData = $user->export();
-        $_SESSION['user_id'] = $userData['id'] ?? $user->id;
-        $_SESSION['user_login'] = $userData['sLogin'] ?? '';
+        session_start();
+        $_SESSION['user_id'] = $user->id;
+        $_SESSION['user_login'] = $user->sLogin;
 
-        $this->logger->info("User logged in: {$userData['sLogin']}");
+        $this->logger->info("User logged in: {$user->sLogin}");
         $this->redirect('/dashboard');
         return '';
     }
 
     public function logout(): void
     {
+        session_start();
         session_destroy();
         $this->logger->info("User logged out");
         $this->redirect('/login');
@@ -110,11 +111,11 @@ class AuthController extends BaseController
             $data['LastName']
         );
 
-        $userData = $user->export();
-        $this->logger->info("New user registered: {$userData['sLogin']}");
+        $this->logger->info("New user registered: {$user->sLogin}");
 
-        $_SESSION['user_id'] = $userData['id'] ?? $user->id;
-        $_SESSION['user_login'] = $userData['sLogin'] ?? '';
+        session_start();
+        $_SESSION['user_id'] = $user->id;
+        $_SESSION['user_login'] = $user->sLogin;
 
         $this->redirect('/dashboard');
         return '';

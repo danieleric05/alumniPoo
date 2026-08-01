@@ -10,15 +10,13 @@ class AuthService
 {
     public function authenticate(string $sLogin, string $sPassword): ?OODBBean
     {
-        $user = R::findOne('users', 'sLogin = ?', [$sLogin]);
+        $user = R::findOne('users', 's_login = ?', [$sLogin]);
 
         if ($user === null) {
             return null;
         }
 
-        // Export user data to access password (RedBean magic getter may return null)
-        $userData = $user->export();
-        $passwordHash = $userData['sPassword'] ?? null;
+        $passwordHash = $user->sPassword;
 
         // Check if password is null or empty
         if (empty($passwordHash)) {
@@ -34,23 +32,22 @@ class AuthService
 
     public function register(string $sLogin, string $sPassword, string $FirstName, string $LastName): OODBBean
     {
-        $hashedPassword = password_hash($sPassword, PASSWORD_BCRYPT);
-        $dCreation = date('Y-m-d H:i:s');
+        $user = R::dispense('users');
+        $user->sLogin = $sLogin;
+        $user->sPassword = password_hash($sPassword, PASSWORD_BCRYPT);
+        $user->FirstName = $FirstName;
+        $user->LastName = $LastName;
+        $user->dCreation = date('Y-m-d H:i:s');
+        $user->iStatus = 1;
 
-        // Use direct SQL to avoid RedBean's snake_case conversion
-        R::exec(
-            'INSERT INTO users (sLogin, sPassword, FirstName, LastName, dCreation, iStatus) VALUES (?, ?, ?, ?, ?, ?)',
-            [$sLogin, $hashedPassword, $FirstName, $LastName, $dCreation, 1]
-        );
+        R::store($user);
 
-        $userId = R::getInsertID();
-
-        return R::load('users', $userId);
+        return $user;
     }
 
     public function userExists(string $sLogin): bool
     {
-        return R::findOne('users', 'sLogin = ?', [$sLogin]) !== null;
+        return R::findOne('users', 's_login = ?', [$sLogin]) !== null;
     }
 
     public function getUserById(int $id): ?OODBBean

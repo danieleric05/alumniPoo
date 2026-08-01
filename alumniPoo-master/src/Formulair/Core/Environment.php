@@ -22,6 +22,9 @@ class Environment
         }
 
         // Load environment variables from system
+        foreach (getenv() as $key => $value) {
+            self::$env[$key] = $value;
+        }
         foreach ($_ENV as $key => $value) {
             self::$env[$key] = $value;
         }

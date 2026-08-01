@@ -3,6 +3,7 @@
 namespace Formulair\Core;
 
 use RedBeanPHP\Facade as R;
+use RedBeanPHP\Util\DispenseHelper;
 
 class Database
 {
@@ -44,6 +45,10 @@ class Database
 
                 R::setup($dsn, $dbUser, $dbPassword);
             }
+
+            // Bean type names in this app use snake_case (e.g. job_division, tbl_events),
+            // which RedBeanPHP's default naming policy rejects.
+            DispenseHelper::setEnforceNamingPolicy(false);
 
             // RedBean configuration
             $debug = Environment::get('APP_DEBUG', 'false') === 'true';

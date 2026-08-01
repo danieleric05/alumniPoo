@@ -17,102 +17,101 @@ class AlumniService
 
     public function updateUserProfile(int $userId, array $data): OODBBean
     {
-        $fields = [];
-        $values = [];
+        $user = R::load('users', $userId);
 
-        if (isset($data['FirstName'])) {
-            $fields[] = 'FirstName = ?';
-            $values[] = $data['FirstName'];
-        }
-        if (isset($data['LastName'])) {
-            $fields[] = 'LastName = ?';
-            $values[] = $data['LastName'];
-        }
-        if (isset($data['iCity'])) {
-            $fields[] = 'iCity = ?';
-            $values[] = $data['iCity'] ?: null;
-        }
-        if (isset($data['YearWouldGraduateIn'])) {
-            $fields[] = 'YearWouldGraduateIn = ?';
-            $values[] = $data['YearWouldGraduateIn'] ?: null;
-        }
-        if (isset($data['iYearStart'])) {
-            $fields[] = 'iYearStart = ?';
-            $values[] = $data['iYearStart'] ?: null;
-        }
-        if (isset($data['iYearEnd'])) {
-            $fields[] = 'iYearEnd = ?';
-            $values[] = $data['iYearEnd'] ?: null;
+        foreach (['FirstName', 'LastName', 'iCity', 'YearWouldGraduateIn', 'iYearStart', 'iYearEnd'] as $field) {
+            if (isset($data[$field])) {
+                $user->$field = $data[$field] !== '' ? $data[$field] : null;
+            }
         }
 
-        if (!empty($fields)) {
-            $values[] = $userId;
-            R::exec(
-                'UPDATE users SET ' . implode(', ', $fields) . ' WHERE id = ?',
-                $values
-            );
-        }
+        R::store($user);
 
-        return R::load('users', $userId);
+        return $user;
     }
 
     public function getUserWorkExperiences(int $userId): array
     {
-        return R::getAll('SELECT * FROM user_work_experience WHERE iUser = ? ORDER BY dStart DESC', [$userId]);
+        $experiences = R::find('user_work_experience', 'i_user = ? ORDER BY d_start DESC', [$userId]);
+
+        return array_map([$this, 'workExperienceToArray'], array_values($experiences));
     }
 
     public function addWorkExperience(int $userId, array $data): OODBBean
     {
-        R::exec(
-            'INSERT INTO user_work_experience (iUser, sCompany, iDivision, iCity, sCity, iCountry, dStart, iEnd, sDescription) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-            [
-                $userId,
-                $data['sCompany'] ?? '',
-                $data['iDivision'] ?: null,
-                $data['iCity'] ?: null,
-                $data['sCity'] ?? '',
-                $data['iCountry'] ?: null,
-                $data['dStart'] ?: null,
-                $data['iEnd'] ?: null,
-                $data['sDescription'] ?? ''
-            ]
-        );
+        $exp = R::dispense('user_work_experience');
+        $exp->iUser = $userId;
+        $exp->sCompany = $data['sCompany'] ?? '';
+        $exp->iDivision = $data['iDivision'] ?: null;
+        $exp->iCity = $data['iCity'] ?: null;
+        $exp->sCity = $data['sCity'] ?? '';
+        $exp->iCountry = $data['iCountry'] ?: null;
+        $exp->dStart = $data['dStart'] ?: null;
+        $exp->iEnd = $data['iEnd'] ?: null;
+        $exp->sDescription = $data['sDescription'] ?? '';
 
-        return R::load('user_work_experience', R::getInsertID());
+        R::store($exp);
+
+        return $exp;
     }
 
     public function getUserContactInfo(int $userId): array
     {
-        return R::getAll('SELECT * FROM user_contact_info WHERE iUser = ? ORDER BY dCreation DESC', [$userId]);
+        $infos = R::find('user_contact_info', 'i_user = ? ORDER BY d_creation DESC', [$userId]);
+
+        return array_map([$this, 'contactInfoToArray'], array_values($infos));
     }
 
     public function addContactInfo(int $userId, array $data): OODBBean
     {
-        R::exec(
-            'INSERT INTO user_contact_info (iUser, iType, sValue, dCreation) VALUES (?, ?, ?, ?)',
-            [
-                $userId,
-                $data['iType'],
-                $data['sValue'],
-                date('Y-m-d H:i:s')
-            ]
-        );
+        $info = R::dispense('user_contact_info');
+        $info->iUser = $userId;
+        $info->iType = $data['iType'];
+        $info->sValue = $data['sValue'];
+        $info->dCreation = date('Y-m-d H:i:s');
 
-        return R::load('user_contact_info', R::getInsertID());
+        R::store($info);
+
+        return $info;
     }
 
     public function getAllCities(): array
     {
-        return R::findAll('cities', 'ORDER BY sLabel');
+        return R::findAll('cities', 'ORDER BY s_label');
     }
 
     public function getAllJobDivisions(): array
     {
-        return R::findAll('job_division', 'ORDER BY sLabel');
+        return R::findAll('job_division', 'ORDER BY s_label');
     }
 
     public function getAllContactTypes(): array
     {
-        return R::findAll('contact_info_type', 'ORDER BY sLabel');
+        return R::findAll('contact_info_type', 'ORDER BY s_label');
+    }
+
+    private function workExperienceToArray(OODBBean $exp): array
+    {
+        return [
+            'id' => $exp->id,
+            'sCompany' => $exp->sCompany,
+            'iDivision' => $exp->iDivision,
+            'iCity' => $exp->iCity,
+            'sCity' => $exp->sCity,
+            'iCountry' => $exp->iCountry,
+            'dStart' => $exp->dStart,
+            'iEnd' => $exp->iEnd,
+            'sDescription' => $exp->sDescription,
+        ];
+    }
+
+    private function contactInfoToArray(OODBBean $info): array
+    {
+        return [
+            'id' => $info->id,
+            'iType' => $info->iType,
+            'sValue' => $info->sValue,
+            'dCreation' => $info->dCreation,
+        ];
     }
 }
