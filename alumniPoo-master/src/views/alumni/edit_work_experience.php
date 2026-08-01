@@ -12,6 +12,7 @@ $content = '
         }, array_keys($errors), $errors)) . '</ul></div>' : '') . '
 
         <form method="POST" action="/work-experience/edit/' . $experience->id . '" class="space-y-5">
+            ' . \Formulair\Core\Csrf::field() . '
             <div class="grid md:grid-cols-2 gap-6">
                 <div class="md:col-span-2">
                     <label for="sCompany" class="block text-sm font-medium text-gray-700 mb-2">Entreprise *</label>

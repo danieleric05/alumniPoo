@@ -21,6 +21,7 @@ $content = '
         }, array_keys($errors), $errors)) . '</ul></div>' : '') . '
 
         <form method="POST" action="/register" class="space-y-5">
+            ' . \Formulair\Core\Csrf::field() . '
             <div>
                 <label for="sLogin" class="block text-sm font-medium text-gray-700 mb-2">Nom d\'utilisateur</label>
                 <input type="text" id="sLogin" name="sLogin" value="' . htmlspecialchars($data['sLogin'] ?? '') . '" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">

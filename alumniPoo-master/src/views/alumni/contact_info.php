@@ -33,6 +33,7 @@ $content = '
                             <td class="px-6 py-4 text-gray-600">' . (!empty($info['dCreation']) ? date('d/m/Y H:i', strtotime($info['dCreation'])) : 'N/A') . '</td>
                             <td class="px-6 py-4">
                                 <form method="POST" action="/contact-info/delete/' . $info['id'] . '" onsubmit="return confirm(\'Êtes-vous sûr?\');" class="inline">
+                                    ' . \Formulair\Core\Csrf::field() . '
                                     <button type="submit" class="bg-red-50 hover:bg-red-100 text-red-600 font-semibold py-1 px-3 rounded text-xs transition">
                                         Supprimer
                                     </button>

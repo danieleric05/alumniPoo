@@ -12,6 +12,7 @@ $content = '
         }, array_keys($errors), $errors)) . '</ul></div>' : '') . '
 
         <form method="POST" action="/contact-info/add" class="space-y-5">
+            ' . \Formulair\Core\Csrf::field() . '
             <div>
                 <label for="iType" class="block text-sm font-medium text-gray-700 mb-2">Type de contact *</label>
                 <select id="iType" name="iType" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">

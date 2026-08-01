@@ -41,6 +41,7 @@ $content = '
                                         Éditer
                                     </a>
                                     <form method="POST" action="/work-experience/delete/' . $exp['id'] . '" onsubmit="return confirm(\'Êtes-vous sûr?\');" class="inline">
+                                        ' . \Formulair\Core\Csrf::field() . '
                                         <button type="submit" class="bg-red-50 hover:bg-red-100 text-red-600 font-semibold py-1 px-3 rounded text-xs transition">
                                             Supprimer
                                         </button>
