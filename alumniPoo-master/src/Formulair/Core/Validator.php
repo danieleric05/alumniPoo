@@ -89,7 +89,7 @@ class Validator
 
     private function validateAlpha(string $field, mixed $value): void
     {
-        if (!empty($value) && !ctype_alpha(str_replace(' ', '', $value))) {
+        if (!empty($value) && !preg_match('/^[\p{L}\s-]+$/u', $value)) {
             $this->addError($field, "$field must contain only letters");
         }
     }
