@@ -2,7 +2,7 @@
 
 namespace Formulair\Middleware;
 
-use Formulair\Service\AuthService;
+use Formulair\Service\PermissionService;
 use RedBeanPHP\Facade as R;
 
 class AuthMiddleware
@@ -40,17 +40,17 @@ class AuthMiddleware
         return isset($_SESSION['user_id']);
     }
 
-    public static function requireAdmin(): void
+    public static function requirePermission(string $key): void
     {
         self::requireLogin();
 
-        if (!self::isAdmin()) {
+        if (!self::hasPermission($key)) {
             header('Location: /dashboard');
             exit;
         }
     }
 
-    public static function isAdmin(): bool
+    public static function hasPermission(string $key): bool
     {
         self::ensureSessionStarted();
 
@@ -58,9 +58,7 @@ class AuthMiddleware
             return false;
         }
 
-        $user = R::load('users', (int) $_SESSION['user_id']);
-
-        return $user->id && (int) $user->iRole === AuthService::ROLE_ADMIN;
+        return (new PermissionService())->userHasPermission((int) $_SESSION['user_id'], $key);
     }
 
     public static function isMembershipActive(): bool

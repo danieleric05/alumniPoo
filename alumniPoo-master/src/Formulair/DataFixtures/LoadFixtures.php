@@ -10,6 +10,8 @@ use Formulair\Core\Logger;
 class LoadFixtures
 {
     private Logger $logger;
+    private array $permissionIds = [];
+    private array $roleTemplateIds = [];
 
     public function __construct()
     {
@@ -27,6 +29,8 @@ class LoadFixtures
             $this->loadCities();
             $this->loadJobDivisions();
             $this->loadEvents();
+            $this->loadPermissions();
+            $this->loadRoleTemplates();
             $this->loadUsers();
 
             R::commit();
@@ -152,6 +156,59 @@ class LoadFixtures
         $this->logger->info("Events loaded");
     }
 
+    private function loadPermissions(): void
+    {
+        $permissions = [
+            ['sKey' => 'users.view', 'sLabel' => 'Voir la liste des utilisateurs', 'sDescription' => 'Accès à /admin/users'],
+            ['sKey' => 'users.manage_status', 'sLabel' => 'Activer/désactiver un compte', 'sDescription' => ''],
+            ['sKey' => 'users.manage_membership', 'sLabel' => 'Gérer la cotisation', 'sDescription' => ''],
+            ['sKey' => 'users.edit', 'sLabel' => 'Éditer le profil d\'un utilisateur', 'sDescription' => ''],
+            ['sKey' => 'users.delete', 'sLabel' => 'Supprimer un compte', 'sDescription' => ''],
+            ['sKey' => 'roles.manage', 'sLabel' => 'Gérer les templates de droits', 'sDescription' => 'Créer/éditer les templates et les attribuer'],
+        ];
+
+        foreach ($permissions as $permission) {
+            $p = R::dispense('permission');
+            $p->sKey = $permission['sKey'];
+            $p->sLabel = $permission['sLabel'];
+            $p->sDescription = $permission['sDescription'];
+            $id = R::store($p);
+            $this->permissionIds[$permission['sKey']] = $id;
+        }
+
+        $this->logger->info("Permissions loaded");
+    }
+
+    private function loadRoleTemplates(): void
+    {
+        $templates = [
+            ['sKey' => 'admin', 'sLabel' => 'Administrateur', 'permissions' => [
+                'users.view', 'users.manage_status', 'users.manage_membership', 'users.edit', 'users.delete', 'roles.manage',
+            ]],
+            ['sKey' => 'membre', 'sLabel' => 'Membre', 'permissions' => []],
+            ['sKey' => 'tresorier', 'sLabel' => 'Trésorier', 'permissions' => [
+                'users.view', 'users.manage_membership',
+            ]],
+        ];
+
+        foreach ($templates as $template) {
+            $t = R::dispense('role_template');
+            $t->sKey = $template['sKey'];
+            $t->sLabel = $template['sLabel'];
+            $templateId = R::store($t);
+            $this->roleTemplateIds[$template['sKey']] = $templateId;
+
+            foreach ($template['permissions'] as $permissionKey) {
+                $link = R::dispense('role_template_permission');
+                $link->iRoleTemplate = $templateId;
+                $link->iPermission = $this->permissionIds[$permissionKey];
+                R::store($link);
+            }
+        }
+
+        $this->logger->info("Role templates loaded");
+    }
+
     private function loadUsers(): void
     {
         $users = [
@@ -161,7 +218,7 @@ class LoadFixtures
                 'FirstName' => 'Admin',
                 'LastName' => 'Système',
                 'iStatus' => 1,
-                'iRole' => 1,
+                'iRoleTemplate' => $this->roleTemplateIds['admin'],
                 'YearWouldGraduateIn' => 2020,
                 'iYearStart' => 2017,
                 'iYearEnd' => 2020,
@@ -173,7 +230,7 @@ class LoadFixtures
                 'FirstName' => 'John',
                 'LastName' => 'Doe',
                 'iStatus' => 1,
-                'iRole' => 0,
+                'iRoleTemplate' => $this->roleTemplateIds['membre'],
                 'YearWouldGraduateIn' => 2021,
                 'iYearStart' => 2018,
                 'iYearEnd' => 2021,
@@ -185,7 +242,7 @@ class LoadFixtures
                 'FirstName' => 'Jane',
                 'LastName' => 'Smith',
                 'iStatus' => 1,
-                'iRole' => 0,
+                'iRoleTemplate' => $this->roleTemplateIds['membre'],
                 'YearWouldGraduateIn' => 2019,
                 'iYearStart' => 2016,
                 'iYearEnd' => 2019,
@@ -200,7 +257,7 @@ class LoadFixtures
             $u->FirstName = $user['FirstName'];
             $u->LastName = $user['LastName'];
             $u->iStatus = $user['iStatus'];
-            $u->iRole = $user['iRole'];
+            $u->iRoleTemplate = $user['iRoleTemplate'];
             $u->YearWouldGraduateIn = $user['YearWouldGraduateIn'];
             $u->iYearStart = $user['iYearStart'];
             $u->iYearEnd = $user['iYearEnd'];

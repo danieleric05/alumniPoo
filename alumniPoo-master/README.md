@@ -195,15 +195,24 @@ alumniPoo-master/
 | GET | `/contact-info` | Liste des contacts |
 | GET/POST | `/contact-info/add` | Ajouter une information |
 
-### Administration (rôle Admin requis)
+### Administration (droits par fonctionnalité requis)
 
-| Méthode | Route | Description |
-|---------|-------|-------------|
-| GET | `/admin/users` | Liste de tous les utilisateurs |
-| POST | `/admin/users/{id}/role` | Changer le rôle d'un utilisateur (Admin / Membre) |
-| POST | `/admin/users/{id}/status` | Activer / désactiver un compte |
-| GET/POST | `/admin/users/{id}/edit` | Modifier le profil d'un utilisateur |
-| POST | `/admin/users/{id}/delete` | Supprimer définitivement un compte |
+Chaque action est protégée par une permission individuelle (voir `/admin/roles`), pas par un rôle binaire. Un utilisateur ne voit et n'accède qu'aux actions pour lesquelles son template de droits a la permission correspondante.
+
+| Méthode | Route | Description | Permission requise |
+|---------|-------|-------------|---------------------|
+| GET | `/admin/users` | Liste de tous les utilisateurs | `users.view` |
+| POST | `/admin/users/{id}/role` | Assigner un template de droits à un utilisateur | `roles.manage` |
+| POST | `/admin/users/{id}/status` | Activer / désactiver un compte | `users.manage_status` |
+| POST | `/admin/users/{id}/membership` | Mettre à jour la date de cotisation | `users.manage_membership` |
+| GET/POST | `/admin/users/{id}/edit` | Modifier le profil d'un utilisateur | `users.edit` |
+| POST | `/admin/users/{id}/delete` | Supprimer définitivement un compte | `users.delete` |
+| GET | `/admin/roles` | Liste des templates de droits | `roles.manage` |
+| POST | `/admin/roles` | Créer un template de droits | `roles.manage` |
+| POST | `/admin/roles/{id}` | Modifier les permissions d'un template | `roles.manage` |
+| POST | `/admin/roles/{id}/delete` | Supprimer un template de droits | `roles.manage` |
+
+Templates par défaut : **Administrateur** (toutes les permissions), **Membre** (aucune), **Trésorier** (`users.view` + `users.manage_membership`, exemple de granularité).
 
 ## 🧪 Tests
 

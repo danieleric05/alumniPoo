@@ -4,42 +4,43 @@ namespace Formulair\Controller;
 
 use Formulair\Service\AuthService;
 use Formulair\Service\AlumniService;
+use Formulair\Service\PermissionService;
 use Formulair\Middleware\AuthMiddleware;
 
 class AdminController extends BaseController
 {
     private AuthService $authService;
     private AlumniService $alumniService;
+    private PermissionService $permissionService;
 
-    public function __construct(AuthService $authService = null, AlumniService $alumniService = null)
+    public function __construct(AuthService $authService = null, AlumniService $alumniService = null, PermissionService $permissionService = null)
     {
         parent::__construct();
         $this->authService = $authService ?? new AuthService();
         $this->alumniService = $alumniService ?? new AlumniService();
+        $this->permissionService = $permissionService ?? new PermissionService();
     }
 
     public function users(): string
     {
-        AuthMiddleware::requireAdmin();
+        AuthMiddleware::requirePermission('users.view');
 
         return $this->view('admin/users', [
             'users' => $this->authService->getAllUsers(),
+            'roleTemplates' => $this->permissionService->getAllRoleTemplates(),
             'currentUserId' => (int) $_SESSION['user_id'],
         ]);
     }
 
-    public function updateRole(string $id): void
+    public function updateRoleTemplate(string $id): void
     {
-        AuthMiddleware::requireAdmin();
+        AuthMiddleware::requirePermission('roles.manage');
         $userId = (int) $id;
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && $userId !== (int) $_SESSION['user_id']) {
-            $role = (int) $this->getInput('iRole') === AuthService::ROLE_ADMIN
-                ? AuthService::ROLE_ADMIN
-                : AuthService::ROLE_MEMBER;
-
-            $this->authService->updateUserRole($userId, $role);
-            $this->logger->info("User $userId role set to $role by admin {$_SESSION['user_id']}");
+            $templateId = (int) $this->getInput('iRoleTemplate');
+            $this->permissionService->assignTemplateToUser($userId, $templateId);
+            $this->logger->info("User $userId assigned to role template $templateId by admin {$_SESSION['user_id']}");
         }
 
         $this->redirect('/admin/users');
@@ -47,7 +48,7 @@ class AdminController extends BaseController
 
     public function updateStatus(string $id): void
     {
-        AuthMiddleware::requireAdmin();
+        AuthMiddleware::requirePermission('users.manage_status');
         $userId = (int) $id;
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && $userId !== (int) $_SESSION['user_id']) {
@@ -62,7 +63,7 @@ class AdminController extends BaseController
 
     public function updateMembership(string $id): void
     {
-        AuthMiddleware::requireAdmin();
+        AuthMiddleware::requirePermission('users.manage_membership');
         $userId = (int) $id;
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -80,7 +81,7 @@ class AdminController extends BaseController
 
     public function editUser(string $id): string
     {
-        AuthMiddleware::requireAdmin();
+        AuthMiddleware::requirePermission('users.edit');
         $userId = (int) $id;
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -135,7 +136,7 @@ class AdminController extends BaseController
 
     public function deleteUser(string $id): void
     {
-        AuthMiddleware::requireAdmin();
+        AuthMiddleware::requirePermission('users.delete');
         $userId = (int) $id;
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && $userId !== (int) $_SESSION['user_id']) {
@@ -144,5 +145,75 @@ class AdminController extends BaseController
         }
 
         $this->redirect('/admin/users');
+    }
+
+    public function roles(): string
+    {
+        AuthMiddleware::requirePermission('roles.manage');
+
+        $templates = $this->permissionService->getAllRoleTemplates();
+        $templatePermissions = [];
+
+        foreach ($templates as $template) {
+            $templatePermissions[$template->id] = $this->permissionService->getTemplatePermissionKeys((int) $template->id);
+        }
+
+        return $this->view('admin/roles', [
+            'permissions' => $this->permissionService->getAllPermissions(),
+            'templates' => $templates,
+            'templatePermissions' => $templatePermissions,
+            'protectedKeys' => PermissionService::PROTECTED_TEMPLATE_KEYS,
+        ]);
+    }
+
+    public function createRoleTemplate(): void
+    {
+        AuthMiddleware::requirePermission('roles.manage');
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $validator = $this->validate($this->getInput(), [
+                'sKey' => 'required|alphanumeric|max:191',
+                'sLabel' => 'required|max:191',
+            ]);
+
+            if (empty($validator->getErrors())) {
+                $permissionIds = array_map('intval', (array) $this->getInput('permissions', []));
+                $this->permissionService->createRoleTemplate(
+                    $this->getInput('sKey'),
+                    $this->getInput('sLabel'),
+                    $permissionIds
+                );
+                $this->logger->info("Role template {$this->getInput('sKey')} created by admin {$_SESSION['user_id']}");
+            }
+        }
+
+        $this->redirect('/admin/roles');
+    }
+
+    public function updateRoleTemplatePermissions(string $id): void
+    {
+        AuthMiddleware::requirePermission('roles.manage');
+        $templateId = (int) $id;
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $permissionIds = array_map('intval', (array) $this->getInput('permissions', []));
+            $this->permissionService->updateRoleTemplatePermissions($templateId, $permissionIds);
+            $this->logger->info("Role template $templateId permissions updated by admin {$_SESSION['user_id']}");
+        }
+
+        $this->redirect('/admin/roles');
+    }
+
+    public function deleteRoleTemplate(string $id): void
+    {
+        AuthMiddleware::requirePermission('roles.manage');
+        $templateId = (int) $id;
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $this->permissionService->deleteRoleTemplate($templateId);
+            $this->logger->info("Role template $templateId delete attempted by admin {$_SESSION['user_id']}");
+        }
+
+        $this->redirect('/admin/roles');
     }
 }

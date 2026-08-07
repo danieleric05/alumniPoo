@@ -8,11 +8,15 @@ use RedBeanPHP\OODBBean;
 
 class AuthService
 {
-    public const ROLE_MEMBER = 0;
-    public const ROLE_ADMIN = 1;
-
     private const MAX_ATTEMPTS = 5;
     private const WINDOW_MINUTES = 15;
+
+    private PermissionService $permissionService;
+
+    public function __construct(PermissionService $permissionService = null)
+    {
+        $this->permissionService = $permissionService ?? new PermissionService();
+    }
 
     public function isRateLimited(string $sLogin, string $ip): bool
     {
@@ -74,7 +78,9 @@ class AuthService
         $user->LastName = $LastName;
         $user->dCreation = date('Y-m-d H:i:s');
         $user->iStatus = 1;
-        $user->iRole = self::ROLE_MEMBER;
+
+        $memberTemplate = $this->permissionService->getTemplateByKey('membre');
+        $user->iRoleTemplate = $memberTemplate?->id;
 
         R::store($user);
 
@@ -100,20 +106,6 @@ class AuthService
     public function getAllUsers(): array
     {
         return R::findAll('users', 'ORDER BY s_login');
-    }
-
-    public function updateUserRole(int $id, int $role): ?OODBBean
-    {
-        $user = R::load('users', $id);
-
-        if (!$user->id) {
-            return null;
-        }
-
-        $user->iRole = $role === self::ROLE_ADMIN ? self::ROLE_ADMIN : self::ROLE_MEMBER;
-        R::store($user);
-
-        return $user;
     }
 
     public function updateUserStatus(int $id, int $status): ?OODBBean
