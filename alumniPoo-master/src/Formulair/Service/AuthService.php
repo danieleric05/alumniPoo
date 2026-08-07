@@ -11,6 +11,13 @@ class AuthService
     private const MAX_ATTEMPTS = 5;
     private const WINDOW_MINUTES = 15;
 
+    private PermissionService $permissionService;
+
+    public function __construct(PermissionService $permissionService = null)
+    {
+        $this->permissionService = $permissionService ?? new PermissionService();
+    }
+
     public function isRateLimited(string $sLogin, string $ip): bool
     {
         $since = date('Y-m-d H:i:s', time() - self::WINDOW_MINUTES * 60);
@@ -72,6 +79,9 @@ class AuthService
         $user->dCreation = date('Y-m-d H:i:s');
         $user->iStatus = 1;
 
+        $memberTemplate = $this->permissionService->getTemplateByKey('membre');
+        $user->iRoleTemplate = $memberTemplate?->id;
+
         R::store($user);
 
         return $user;
@@ -91,5 +101,39 @@ class AuthService
     {
         R::store($user);
         return $user;
+    }
+
+    public function getAllUsers(): array
+    {
+        return R::findAll('users', 'ORDER BY s_login');
+    }
+
+    public function updateUserStatus(int $id, int $status): ?OODBBean
+    {
+        $user = R::load('users', $id);
+
+        if (!$user->id) {
+            return null;
+        }
+
+        $user->iStatus = $status === 1 ? 1 : 0;
+        R::store($user);
+
+        return $user;
+    }
+
+    public function deleteUser(int $id): bool
+    {
+        $user = R::load('users', $id);
+
+        if (!$user->id) {
+            return false;
+        }
+
+        R::trashAll(R::find('user_work_experience', 'i_user = ?', [$id]));
+        R::trashAll(R::find('user_contact_info', 'i_user = ?', [$id]));
+        R::trash($user);
+
+        return true;
     }
 }
