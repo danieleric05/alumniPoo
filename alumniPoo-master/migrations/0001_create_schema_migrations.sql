@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS schema_migrations (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  filename VARCHAR(191) UNIQUE,
+  applied_at DATETIME
+);
