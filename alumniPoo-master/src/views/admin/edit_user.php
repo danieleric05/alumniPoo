@@ -1,9 +1,9 @@
 <?php
-$title = 'Modifier le profil - Alumni CNDA';
+$title = 'Modifier un utilisateur - Alumni CNDA';
 $content = '
 <div class="bg-white rounded-xl shadow-md overflow-hidden">
     <div class="bg-gradient-to-r from-slate-900 to-slate-800 px-6 py-4">
-        <h1 class="text-2xl font-bold text-white">✏️ Modifier votre profil</h1>
+        <h1 class="text-2xl font-bold text-white">✏️ Modifier le profil de ' . htmlspecialchars($user->sLogin ?? '') . '</h1>
     </div>
 
     <div class="p-6">
@@ -11,7 +11,7 @@ $content = '
             return '<li><strong>' . htmlspecialchars($field) . ':</strong> ' . htmlspecialchars(is_array($msgs) ? $msgs[0] : $msgs) . '</li>';
         }, array_keys($errors), $errors)) . '</ul></div>' : '') . '
 
-        <form method="POST" action="/profile" class="space-y-5">
+        <form method="POST" action="/admin/users/' . $user->id . '/edit" class="space-y-5">
             ' . \Formulair\Core\Csrf::field() . '
             <div class="grid md:grid-cols-2 gap-6">
                 <div>
@@ -55,7 +55,7 @@ $content = '
                 <button type="submit" class="bg-gradient-to-r from-indigo-600 to-purple-700 hover:from-indigo-700 hover:to-purple-800 text-white font-semibold py-2 px-6 rounded-lg transition transform hover:scale-105 duration-200">
                     Enregistrer
                 </button>
-                <a href="/dashboard" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-6 rounded-lg transition">
+                <a href="/admin/users" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-6 rounded-lg transition">
                     Annuler
                 </a>
             </div>

@@ -10,9 +10,11 @@ class Users extends \RedBeanPHP\SimpleModel
     public $FirstName;
     public $iCity;
     public $iStatus;
+    public $iRole;
     public $YearWouldGraduateIn;
     public $iYearStart;
     public $iYearEnd;
     public $dCreation;
+    public $dCotisationValidUntil;
 
 }

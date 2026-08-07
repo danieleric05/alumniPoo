@@ -47,12 +47,12 @@ class AlumniController extends BaseController
         $data = $this->getInput();
 
         $validator = $this->validate($data, [
-            'FirstName' => 'required|alpha|max:100',
-            'LastName' => 'required|alpha|max:100',
+            'FirstName' => 'required|alpha|max:191',
+            'LastName' => 'required|alpha|max:191',
             'iCity' => 'numeric',
             'YearWouldGraduateIn' => 'numeric|min:1900|max:2100',
-            'iYearStart' => 'numeric|min:1900|max:2100',
-            'iYearEnd' => 'numeric|min:1900|max:2100',
+            'iYearStart' => 'numeric|min:1990|max:2000',
+            'iYearEnd' => 'numeric|min:1990|max:2000',
         ]);
 
         if (!empty($validator->getErrors())) {
@@ -68,6 +68,43 @@ class AlumniController extends BaseController
 
         $this->redirect('/profile');
         return '';
+    }
+
+    public function directory(): string
+    {
+        AuthMiddleware::requireLogin();
+
+        if (!AuthMiddleware::isMembershipActive()) {
+            return $this->view('alumni/directory_locked');
+        }
+
+        return $this->view('alumni/directory', [
+            'members' => $this->alumniService->getActiveMembers(),
+            'currentUserId' => (int) $_SESSION['user_id'],
+        ]);
+    }
+
+    public function directoryShow(string $id): string
+    {
+        AuthMiddleware::requireLogin();
+
+        if (!AuthMiddleware::isMembershipActive()) {
+            return $this->view('alumni/directory_locked');
+        }
+
+        $memberId = (int) $id;
+        $isVisible = in_array($memberId, array_column($this->alumniService->getActiveMembers(), 'id'));
+
+        if (!$isVisible) {
+            http_response_code(404);
+            $this->redirect('/directory');
+            return '';
+        }
+
+        return $this->view('alumni/directory_show', [
+            'member' => $this->alumniService->getUserProfile($memberId),
+            'experiences' => $this->alumniService->getUserWorkExperiences($memberId),
+        ]);
     }
 
     public function workExperience(): string

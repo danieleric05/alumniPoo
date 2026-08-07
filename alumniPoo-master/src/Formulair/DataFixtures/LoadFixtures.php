@@ -161,9 +161,11 @@ class LoadFixtures
                 'FirstName' => 'Admin',
                 'LastName' => 'Système',
                 'iStatus' => 1,
+                'iRole' => 1,
                 'YearWouldGraduateIn' => 2020,
                 'iYearStart' => 2017,
                 'iYearEnd' => 2020,
+                'dCotisationValidUntil' => date('Y-m-d', strtotime('+1 year')),
             ],
             [
                 'sLogin' => 'john_doe',
@@ -171,9 +173,11 @@ class LoadFixtures
                 'FirstName' => 'John',
                 'LastName' => 'Doe',
                 'iStatus' => 1,
+                'iRole' => 0,
                 'YearWouldGraduateIn' => 2021,
                 'iYearStart' => 2018,
                 'iYearEnd' => 2021,
+                'dCotisationValidUntil' => date('Y-m-d', strtotime('+1 year')),
             ],
             [
                 'sLogin' => 'jane_smith',
@@ -181,9 +185,11 @@ class LoadFixtures
                 'FirstName' => 'Jane',
                 'LastName' => 'Smith',
                 'iStatus' => 1,
+                'iRole' => 0,
                 'YearWouldGraduateIn' => 2019,
                 'iYearStart' => 2016,
                 'iYearEnd' => 2019,
+                'dCotisationValidUntil' => date('Y-m-d', strtotime('-1 month')),
             ],
         ];
 
@@ -194,9 +200,11 @@ class LoadFixtures
             $u->FirstName = $user['FirstName'];
             $u->LastName = $user['LastName'];
             $u->iStatus = $user['iStatus'];
+            $u->iRole = $user['iRole'];
             $u->YearWouldGraduateIn = $user['YearWouldGraduateIn'];
             $u->iYearStart = $user['iYearStart'];
             $u->iYearEnd = $user['iYearEnd'];
+            $u->dCotisationValidUntil = $user['dCotisationValidUntil'];
             $u->dCreation = date('Y-m-d H:i:s');
             R::store($u);
         }

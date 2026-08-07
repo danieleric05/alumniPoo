@@ -195,6 +195,16 @@ alumniPoo-master/
 | GET | `/contact-info` | Liste des contacts |
 | GET/POST | `/contact-info/add` | Ajouter une information |
 
+### Administration (rôle Admin requis)
+
+| Méthode | Route | Description |
+|---------|-------|-------------|
+| GET | `/admin/users` | Liste de tous les utilisateurs |
+| POST | `/admin/users/{id}/role` | Changer le rôle d'un utilisateur (Admin / Membre) |
+| POST | `/admin/users/{id}/status` | Activer / désactiver un compte |
+| GET/POST | `/admin/users/{id}/edit` | Modifier le profil d'un utilisateur |
+| POST | `/admin/users/{id}/delete` | Supprimer définitivement un compte |
+
 ## 🧪 Tests
 
 Pour exécuter les tests unitaires:

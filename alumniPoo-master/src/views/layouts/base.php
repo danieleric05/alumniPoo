@@ -52,6 +52,14 @@
                             <a href="/contact-info" class="hover:text-indigo-400 transition px-2 sm:px-3 py-2 rounded-md hover:bg-slate-700">
                                 Contacts
                             </a>
+                            <a href="/directory" class="hover:text-indigo-400 transition px-2 sm:px-3 py-2 rounded-md hover:bg-slate-700">
+                                Annuaire
+                            </a>
+                            <?php if (\Formulair\Middleware\AuthMiddleware::isAdmin()): ?>
+                            <a href="/admin/users" class="hover:text-indigo-400 transition px-2 sm:px-3 py-2 rounded-md hover:bg-slate-700">
+                                Administration
+                            </a>
+                            <?php endif; ?>
                             <a href="/logout" class="bg-red-600 hover:bg-red-700 transition px-2 sm:px-3 py-2 rounded-md">
                                 Déconnexion
                             </a>
