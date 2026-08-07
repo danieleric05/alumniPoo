@@ -218,9 +218,16 @@ Apache rewrite rules to route all requests to `index.php`
 
 - RedBean automatically creates database tables on first use in fluid mode
   (`REDBEAN_FREEZE=false`). Production runs frozen (`REDBEAN_FREEZE=true`)
-  for performance, so new tables/columns must be created manually against
-  the database before deploying code that relies on them.
-- No explicit migrations - schema is implicit
+  for performance, so schema changes must be applied before deploying code
+  that relies on them.
+- **Schema changes go through `migrations/`**: add a new numbered `.sql`
+  file (e.g. `0004_xxx.sql`), then run `composer migrate` (wraps
+  `php bin/migrate.php`). The runner tracks applied files in a
+  `schema_migrations` table, so it's safe to run repeatedly in any
+  environment (local fluid mode or prod frozen mode). Run it locally first
+  to validate the SQL, then against prod (e.g. `railway ssh` on the app or
+  MySQL service) before or as part of deploying the code that depends on
+  the new schema.
 - Model prefix must be `\Formulair\Model\` (matches PSR-4 namespace)
 - Environment variables loaded in `core/bootstrap.php`
 - All controllers extend `BaseController` for common functionality
