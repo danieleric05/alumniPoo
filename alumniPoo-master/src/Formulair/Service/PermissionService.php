@@ -14,9 +14,22 @@ class PermissionService
         return R::findAll('permission', 'ORDER BY s_key');
     }
 
-    public function getAllRoleTemplates(): array
+    public function getAllRoleTemplates(?int $limit = null, int $offset = 0): array
     {
-        return R::findAll('role_template', 'ORDER BY s_label');
+        $sql = 'ORDER BY s_label';
+        $params = [];
+
+        if ($limit !== null) {
+            $sql .= ' LIMIT ? OFFSET ?';
+            $params = [$limit, $offset];
+        }
+
+        return R::findAll('role_template', $sql, $params);
+    }
+
+    public function countAllRoleTemplates(): int
+    {
+        return R::count('role_template');
     }
 
     public function getTemplateByKey(string $key): ?OODBBean

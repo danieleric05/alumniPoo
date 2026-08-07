@@ -40,6 +40,7 @@ $content = '
                 </tbody>
             </table>
         </div>') . '
+        ' . \Formulair\Core\Paginator::renderNav($paginator, '/directory') . '
     </div>
 </div>
 ';

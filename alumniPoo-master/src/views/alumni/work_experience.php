@@ -53,6 +53,7 @@ $content = '
                 </tbody>
             </table>
         </div>') . '
+        ' . \Formulair\Core\Paginator::renderNav($paginator, '/work-experience') . '
     </div>
 </div>
 ';

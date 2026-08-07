@@ -19,16 +19,17 @@ class Validator
         foreach ($rules as $field => $fieldRules) {
             $value = $this->data[$field] ?? null;
             $rules_array = is_string($fieldRules) ? explode('|', $fieldRules) : $fieldRules;
+            $isNumericField = in_array('numeric', $rules_array, true);
 
             foreach ($rules_array as $rule) {
-                $this->applyRule($field, $value, $rule);
+                $this->applyRule($field, $value, $rule, $isNumericField);
             }
         }
 
         return count($this->errors) === 0;
     }
 
-    private function applyRule(string $field, mixed $value, string $rule): void
+    private function applyRule(string $field, mixed $value, string $rule, bool $isNumericField): void
     {
         if (strpos($rule, ':') !== false) {
             [$ruleName, $parameter] = explode(':', $rule, 2);
@@ -40,8 +41,8 @@ class Validator
         match ($ruleName) {
             'required' => $this->validateRequired($field, $value),
             'email' => $this->validateEmail($field, $value),
-            'min' => $this->validateMin($field, $value, (int)$parameter),
-            'max' => $this->validateMax($field, $value, (int)$parameter),
+            'min' => $this->validateMin($field, $value, (int)$parameter, $isNumericField),
+            'max' => $this->validateMax($field, $value, (int)$parameter, $isNumericField),
             'numeric' => $this->validateNumeric($field, $value),
             'alpha' => $this->validateAlpha($field, $value),
             'alphanumeric' => $this->validateAlphanumeric($field, $value),
@@ -66,16 +67,38 @@ class Validator
         }
     }
 
-    private function validateMin(string $field, mixed $value, int $min): void
+    private function validateMin(string $field, mixed $value, int $min, bool $isNumericField): void
     {
-        if (!empty($value) && strlen($value) < $min) {
+        if (empty($value)) {
+            return;
+        }
+
+        if ($isNumericField) {
+            if (is_numeric($value) && (float) $value < $min) {
+                $this->addError($field, "$field must be at least $min");
+            }
+            return;
+        }
+
+        if (strlen($value) < $min) {
             $this->addError($field, "$field must be at least $min characters");
         }
     }
 
-    private function validateMax(string $field, mixed $value, int $max): void
+    private function validateMax(string $field, mixed $value, int $max, bool $isNumericField): void
     {
-        if (!empty($value) && strlen($value) > $max) {
+        if (empty($value)) {
+            return;
+        }
+
+        if ($isNumericField) {
+            if (is_numeric($value) && (float) $value > $max) {
+                $this->addError($field, "$field must not exceed $max");
+            }
+            return;
+        }
+
+        if (strlen($value) > $max) {
             $this->addError($field, "$field must not exceed $max characters");
         }
     }

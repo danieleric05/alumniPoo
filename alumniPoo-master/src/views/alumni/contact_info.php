@@ -44,6 +44,7 @@ $content = '
                 </tbody>
             </table>
         </div>') . '
+        ' . \Formulair\Core\Paginator::renderNav($paginator, '/contact-info') . '
     </div>
 </div>
 ';

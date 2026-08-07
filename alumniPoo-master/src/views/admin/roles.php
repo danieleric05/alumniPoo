@@ -1,5 +1,6 @@
 <?php
 $title = 'Droits - Alumni CNDA';
+$pagerHtml = \Formulair\Core\Paginator::renderNav($paginator, '/admin/roles');
 $content = '
 <div class="space-y-6">
     <div class="flex justify-between items-center">
@@ -50,6 +51,8 @@ $content = '
             ';
         }, $templates)) . '
     </div>
+
+    ' . ($pagerHtml !== '' ? '<div class="bg-white rounded-xl shadow-md overflow-hidden">' . $pagerHtml . '</div>' : '') . '
 
     <div class="bg-white rounded-xl shadow-md overflow-hidden">
         <div class="bg-gradient-to-r from-slate-900 to-slate-800 px-6 py-4">

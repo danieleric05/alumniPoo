@@ -103,9 +103,22 @@ class AuthService
         return $user;
     }
 
-    public function getAllUsers(): array
+    public function getAllUsers(?int $limit = null, int $offset = 0): array
     {
-        return R::findAll('users', 'ORDER BY s_login');
+        $sql = 'ORDER BY s_login';
+        $params = [];
+
+        if ($limit !== null) {
+            $sql .= ' LIMIT ? OFFSET ?';
+            $params = [$limit, $offset];
+        }
+
+        return R::findAll('users', $sql, $params);
+    }
+
+    public function countAllUsers(): int
+    {
+        return R::count('users');
     }
 
     public function updateUserStatus(int $id, int $status): ?OODBBean
