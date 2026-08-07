@@ -6,6 +6,7 @@ use Formulair\Service\AuthService;
 use Formulair\Service\AlumniService;
 use Formulair\Service\PermissionService;
 use Formulair\Middleware\AuthMiddleware;
+use Formulair\Core\Paginator;
 
 class AdminController extends BaseController
 {
@@ -25,9 +26,12 @@ class AdminController extends BaseController
     {
         AuthMiddleware::requirePermission('users.view');
 
+        $paginator = Paginator::fromQuery($this->getInput('page'), $this->authService->countAllUsers());
+
         return $this->view('admin/users', [
-            'users' => $this->authService->getAllUsers(),
+            'users' => $this->authService->getAllUsers($paginator->perPage, $paginator->offset()),
             'roleTemplates' => $this->permissionService->getAllRoleTemplates(),
+            'paginator' => $paginator,
             'currentUserId' => (int) $_SESSION['user_id'],
         ]);
     }
@@ -151,7 +155,8 @@ class AdminController extends BaseController
     {
         AuthMiddleware::requirePermission('roles.manage');
 
-        $templates = $this->permissionService->getAllRoleTemplates();
+        $paginator = Paginator::fromQuery($this->getInput('page'), $this->permissionService->countAllRoleTemplates());
+        $templates = $this->permissionService->getAllRoleTemplates($paginator->perPage, $paginator->offset());
         $templatePermissions = [];
 
         foreach ($templates as $template) {
@@ -163,6 +168,7 @@ class AdminController extends BaseController
             'templates' => $templates,
             'templatePermissions' => $templatePermissions,
             'protectedKeys' => PermissionService::PROTECTED_TEMPLATE_KEYS,
+            'paginator' => $paginator,
         ]);
     }
 

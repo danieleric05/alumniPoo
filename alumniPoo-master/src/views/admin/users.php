@@ -123,6 +123,7 @@ $content = '
                 </tbody>
             </table>
         </div>
+        ' . \Formulair\Core\Paginator::renderNav($paginator, '/admin/users') . '
     </div>
 </div>
 ';

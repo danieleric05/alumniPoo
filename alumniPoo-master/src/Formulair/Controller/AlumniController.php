@@ -4,6 +4,7 @@ namespace Formulair\Controller;
 
 use Formulair\Service\AlumniService;
 use Formulair\Middleware\AuthMiddleware;
+use Formulair\Core\Paginator;
 
 class AlumniController extends BaseController
 {
@@ -78,8 +79,11 @@ class AlumniController extends BaseController
             return $this->view('alumni/directory_locked');
         }
 
+        $paginator = Paginator::fromQuery($this->getInput('page'), $this->alumniService->countActiveMembers());
+
         return $this->view('alumni/directory', [
-            'members' => $this->alumniService->getActiveMembers(),
+            'members' => $this->alumniService->getActiveMembers($paginator->perPage, $paginator->offset()),
+            'paginator' => $paginator,
             'currentUserId' => (int) $_SESSION['user_id'],
         ]);
     }
@@ -93,9 +97,8 @@ class AlumniController extends BaseController
         }
 
         $memberId = (int) $id;
-        $isVisible = in_array($memberId, array_column($this->alumniService->getActiveMembers(), 'id'));
 
-        if (!$isVisible) {
+        if (!$this->alumniService->isActiveMember($memberId)) {
             http_response_code(404);
             $this->redirect('/directory');
             return '';
@@ -111,12 +114,14 @@ class AlumniController extends BaseController
     {
         AuthMiddleware::requireLogin();
         $userId = $_SESSION['user_id'];
-        $workExperiences = $this->alumniService->getUserWorkExperiences($userId);
+        $paginator = Paginator::fromQuery($this->getInput('page'), $this->alumniService->countUserWorkExperiences($userId));
+        $workExperiences = $this->alumniService->getUserWorkExperiences($userId, $paginator->perPage, $paginator->offset());
         $cities = $this->alumniService->getAllCities();
         $divisions = $this->alumniService->getAllJobDivisions();
 
         return $this->view('alumni/work_experience', [
             'workExperiences' => $workExperiences,
+            'paginator' => $paginator,
             'cities' => $cities,
             'divisions' => $divisions,
         ]);
@@ -260,11 +265,13 @@ class AlumniController extends BaseController
     {
         AuthMiddleware::requireLogin();
         $userId = $_SESSION['user_id'];
-        $contactInfos = $this->alumniService->getUserContactInfo($userId);
+        $paginator = Paginator::fromQuery($this->getInput('page'), $this->alumniService->countUserContactInfo($userId));
+        $contactInfos = $this->alumniService->getUserContactInfo($userId, $paginator->perPage, $paginator->offset());
         $types = $this->alumniService->getAllContactTypes();
 
         return $this->view('alumni/contact_info', [
             'contactInfos' => $contactInfos,
+            'paginator' => $paginator,
             'types' => $types,
         ]);
     }

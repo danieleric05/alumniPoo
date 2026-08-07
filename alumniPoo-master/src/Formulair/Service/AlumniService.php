@@ -45,16 +45,49 @@ class AlumniService
         return $user;
     }
 
-    public function getActiveMembers(): array
+    public function getActiveMembers(?int $limit = null, int $offset = 0): array
     {
-        return R::find('users', 'd_cotisation_valid_until >= ? ORDER BY _last_name, _first_name', [date('Y-m-d')]);
+        $sql = 'd_cotisation_valid_until >= ? ORDER BY _last_name, _first_name';
+        $params = [date('Y-m-d')];
+
+        if ($limit !== null) {
+            $sql .= ' LIMIT ? OFFSET ?';
+            $params[] = $limit;
+            $params[] = $offset;
+        }
+
+        return R::find('users', $sql, $params);
     }
 
-    public function getUserWorkExperiences(int $userId): array
+    public function countActiveMembers(): int
     {
-        $experiences = R::find('user_work_experience', 'i_user = ? ORDER BY d_start DESC', [$userId]);
+        return R::count('users', 'd_cotisation_valid_until >= ?', [date('Y-m-d')]);
+    }
+
+    public function isActiveMember(int $userId): bool
+    {
+        return R::count('users', 'id = ? AND d_cotisation_valid_until >= ?', [$userId, date('Y-m-d')]) > 0;
+    }
+
+    public function getUserWorkExperiences(int $userId, ?int $limit = null, int $offset = 0): array
+    {
+        $sql = 'i_user = ? ORDER BY d_start DESC';
+        $params = [$userId];
+
+        if ($limit !== null) {
+            $sql .= ' LIMIT ? OFFSET ?';
+            $params[] = $limit;
+            $params[] = $offset;
+        }
+
+        $experiences = R::find('user_work_experience', $sql, $params);
 
         return array_map([$this, 'workExperienceToArray'], array_values($experiences));
+    }
+
+    public function countUserWorkExperiences(int $userId): int
+    {
+        return R::count('user_work_experience', 'i_user = ?', [$userId]);
     }
 
     public function addWorkExperience(int $userId, array $data): OODBBean
@@ -117,11 +150,25 @@ class AlumniService
         return true;
     }
 
-    public function getUserContactInfo(int $userId): array
+    public function getUserContactInfo(int $userId, ?int $limit = null, int $offset = 0): array
     {
-        $infos = R::find('user_contact_info', 'i_user = ? ORDER BY d_creation DESC', [$userId]);
+        $sql = 'i_user = ? ORDER BY d_creation DESC';
+        $params = [$userId];
+
+        if ($limit !== null) {
+            $sql .= ' LIMIT ? OFFSET ?';
+            $params[] = $limit;
+            $params[] = $offset;
+        }
+
+        $infos = R::find('user_contact_info', $sql, $params);
 
         return array_map([$this, 'contactInfoToArray'], array_values($infos));
+    }
+
+    public function countUserContactInfo(int $userId): int
+    {
+        return R::count('user_contact_info', 'i_user = ?', [$userId]);
     }
 
     public function deleteContactInfo(int $id, int $userId): bool
