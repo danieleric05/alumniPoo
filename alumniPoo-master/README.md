@@ -75,13 +75,15 @@ Cela créera:
 - Les données de référence (pays, villes, divisions, types de contact)
 - 3 utilisateurs de test
 
-**Utilisateurs de test disponibles:**
+**Utilisateurs de test disponibles (environnement local uniquement) :**
 
 | Login | Mot de passe | Rôle |
 |-------|-------------|------|
 | admin | admin123 | Administrateur |
 | john_doe | password123 | Utilisateur |
 | jane_smith | password123 | Utilisateur |
+
+⚠️ Ces identifiants ne sont valides que sur une base locale fraîchement seedée via `LoadFixtures.php`. Ils ne doivent jamais être réutilisés tels quels sur un environnement de production — voir `AUDIT.md`.
 
 ## 🚀 Lancer l'application
 

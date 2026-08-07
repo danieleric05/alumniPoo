@@ -2,13 +2,27 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Governance
+
+**Read `docs/CONSTITUTION.md` first.** It is the highest-level reference document for this project — product vision, non-negotiable principles (security is never optional, evolve rather than rewrite, simplicity over complexity), and the mandated priority order for any work: 1) data protection/security, 2) critical bug fixes, 3) performance, 4) new features, 5) UX polish. When a request conflicts with it, the Constitution prevails until the Product Owner explicitly overrides it.
+
+**Read `docs/01-ARCHITECTURE.md` next.** It defines the *target* module architecture (Controller → Service → Repository → DB, plus Policy/Validator layers, one folder per business module). The current codebase does **not** yet follow this structure — see the gap note below. Per the Constitution's "evolve rather than rewrite" principle, don't restructure code into this target shape as a side effect of unrelated work; treat it as the direction for genuinely new modules and for deliberate, explicitly-scoped migration work, not a license to refactor opportunistically.
+
+**Current architecture vs. target (`docs/01-ARCHITECTURE.md`)** — known gap, not yet reconciled:
+- No `Repository` layer exists. Services call RedBean (`R::`) directly — the Repository's data-access responsibility is folded into the Service today.
+- No `Policy` layer exists. Authorization decisions live in `AuthMiddleware` (`requireLogin()`, `requirePermission()`) called from Controllers, not in dedicated Policy classes.
+- No per-module folder structure. Code is organized by technical layer (`Controller/`, `Service/`, `Model/`, `views/`) shared across all business areas, not by module.
+- Controllers do not touch the database directly (that rule is already respected) — they call Services, which call RedBean directly.
+
+See `AUDIT.md` for the current known security/quality/CDC-compliance findings, prioritized per the Constitution's ordering.
+
 ## Project Overview
 
 **alumniPoo** is a complete, production-ready PHP web application for alumni profile management for CNDA (a French alumni network). The application provides secure authentication, profile management, work experience tracking, and contact information management.
 
 ## Technology Stack
 
-- **Language**: PHP >= 7.4
+- **Language**: PHP 8.2.*
 - **ORM**: RedBean 5.x
 - **Database**: MySQL 5.7+
 - **Autoloader**: PSR-4 (Formulair namespace to src/Formulair/)

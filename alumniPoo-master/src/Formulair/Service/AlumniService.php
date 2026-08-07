@@ -15,9 +15,13 @@ class AlumniService
         return R::load('users', $userId);
     }
 
-    public function updateUserProfile(int $userId, array $data): OODBBean
+    public function updateUserProfile(int $userId, array $data): ?OODBBean
     {
         $user = R::load('users', $userId);
+
+        if (!$user->id) {
+            return null;
+        }
 
         foreach (['FirstName', 'LastName', 'iCity', 'YearWouldGraduateIn', 'iYearStart', 'iYearEnd'] as $field) {
             if (isset($data[$field])) {

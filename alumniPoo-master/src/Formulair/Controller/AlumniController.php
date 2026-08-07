@@ -65,6 +65,14 @@ class AlumniController extends BaseController
         }
 
         $user = $this->alumniService->updateUserProfile($userId, $data);
+
+        if ($user === null) {
+            $this->logger->warning("Profile update attempted for deleted user: $userId");
+            AuthMiddleware::logout();
+            $this->redirect('/login');
+            return '';
+        }
+
         $this->logger->info("User profile updated: {$user->sLogin}");
 
         $this->redirect('/profile');

@@ -132,6 +132,13 @@ class AdminController extends BaseController
         }
 
         $user = $this->alumniService->updateUserProfile($userId, $data);
+
+        if ($user === null) {
+            http_response_code(404);
+            $this->redirect('/admin/users');
+            return '';
+        }
+
         $this->logger->info("User {$user->sLogin} profile updated by admin {$_SESSION['user_id']}");
 
         $this->redirect('/admin/users');

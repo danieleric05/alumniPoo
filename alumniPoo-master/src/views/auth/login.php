@@ -52,10 +52,10 @@ $content = '
         </a>
     </div>
 
-    <!-- Footer Info -->
+    ' . (\Formulair\Core\Environment::get('APP_DEBUG', 'false') === 'true' ? '<!-- Footer Info -->
     <p class="text-center text-slate-600 mt-8 text-sm">
         Identifiants de test: <strong>admin</strong> / <strong>admin123</strong>
-    </p>
+    </p>' : '') . '
 </div>
 ';
 include __DIR__ . '/../layouts/base.php';
