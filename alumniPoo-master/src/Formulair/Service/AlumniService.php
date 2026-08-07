@@ -30,9 +30,14 @@ class AlumniService
         return $user;
     }
 
-    public function updateMembershipExpiry(int $userId, ?string $date): OODBBean
+    public function updateMembershipExpiry(int $userId, ?string $date): ?OODBBean
     {
         $user = R::load('users', $userId);
+
+        if (!$user->id) {
+            return null;
+        }
+
         $user->dCotisationValidUntil = $date;
 
         R::store($user);
@@ -42,7 +47,7 @@ class AlumniService
 
     public function getActiveMembers(): array
     {
-        return R::find('users', 'd_cotisation_valid_until >= ? ORDER BY LastName, FirstName', [date('Y-m-d')]);
+        return R::find('users', 'd_cotisation_valid_until >= ? ORDER BY _last_name, _first_name', [date('Y-m-d')]);
     }
 
     public function getUserWorkExperiences(int $userId): array

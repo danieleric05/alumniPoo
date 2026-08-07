@@ -97,11 +97,6 @@ class AuthService
         return $user;
     }
 
-    public function isAdmin(OODBBean $user): bool
-    {
-        return (int) $user->iRole === self::ROLE_ADMIN;
-    }
-
     public function getAllUsers(): array
     {
         return R::findAll('users', 'ORDER BY s_login');
